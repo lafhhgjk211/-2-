@@ -72,8 +72,6 @@ class Sphere
             sphere->Vx = Vx1BeforeCollision;
             sphere->Vy = Vy1BeforeCollision;
         }
-
-
 };
 
 void drowAtoms(Sphere* atoms, int number)
