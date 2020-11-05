@@ -1,133 +1,137 @@
 #include "TXLib.h"
-#include <ctime>
-#include "math.h"
-struct Sphere
+#include <iostream>
+#include <math.h>
+
+class Sphere
 {
+    public:
 
-    double x;
-    double y;
-    double R;
+        float x = 1;
+        float y = 1;
+        float R = 1;
+        float Vx = 1;
+        float Vy = 1;
 
-    double Red;
-    double Green;
-    double Blue;
+        void draw()
+        {
+            COLORREF OldFillColor = txGetFillColor();
+            COLORREF OldColor = txGetColor();
+            txSetColor(TX_BLUE);
+            txSetFillColor(TX_BLUE);
+            txCircle(x, y , R);
+            txSetFillColor(OldFillColor);
+            txSetColor(OldColor);
+        }
 
-    double Quality;
-    double Vx;
-    double Vy;
+        void movement()
+        {
+            x = x + Vx;
+            y = y + Vy;
+        }
 
+        void collisionWithWalls()
+        {
+            if (x + R > 1500)
+            {
+                Vx = -Vx;
+            }
+            if ( x - R < 0)
+            {
+                Vx = -Vx;
+            }
+            if (y + R > 800)
+            {
+                Vy = -Vy;
+            }
+            if ( y - R < 0)
+            {
+                Vy = -Vy;
+            }
+        }
+
+        bool checkCollisionSpheres(Sphere sphere)
+        {
+            return (x - sphere.x) * (x - sphere.x) + (y - sphere.y) * (y - sphere.y) < (R + sphere.R) * (R + sphere.R);
+        }
+        void collisionSpheres(Sphere* sphere)
+        {
+            if (!checkCollisionSpheres(*sphere))
+            {
+                return;
+            }
+
+            float Bufer = 0;
+            Bufer = Vx;
+            Vx = sphere->Vx;
+            sphere->Vx = Bufer;
+
+            Bufer = Vy;
+            Vy = sphere->Vy;
+            sphere->Vy = Bufer;
+        }
 };
 
-struct Screen
+void drowAtoms(Sphere* atoms, int number)
 {
-    double a;
-    double b;
-};
-
-void DrowSph(Sphere Sph){
-    COLORREF OldFillColor = txGetFillColor();
-    COLORREF OldColor = txGetColor();
-    for (double i = 0; i <= Sph.Quality; i++)
+    for (int i = 0; i < number; i++)
     {
-        txSetFillColor(RGB((Sph.Red * i) / Sph.Quality, (Sph.Green * i) / Sph.Quality, (Sph.Blue * i) / Sph.Quality));
-        txSetColor(RGB((Sph.Red * i) / Sph.Quality, (Sph.Green * i) / Sph.Quality, (Sph.Blue * i) / Sph.Quality));
-        txCircle(Sph.x, Sph.y , Sph.R - (Sph.R * i) / Sph.Quality);
-    }
-    txSetFillColor(OldFillColor);
-    txSetColor(OldColor);
-}
-
-void MoveSph(Sphere* Sph){
-        Sph->x += Sph->Vx;
-        Sph->y += Sph->Vy;
-}
-
-void CheckCollisionWall(Sphere* Sph, Screen ab){
-    if (Sph->x >= ab.a - Sph->R   or Sph->x <= Sph->R  ) {
-            Sph->Vx = -Sph->Vx;
-    }
-    if (Sph->y >= ab.b - Sph->R   or Sph->y <= Sph->R  ) {
-            Sph->Vy = -Sph->Vy;
+        atoms[i].draw();
     }
 }
 
-void CollisionResult (Sphere* Sph1, Sphere* Sph2){
-        double Bufer = 0;
-        Bufer = Sph1->Vx;
-        Sph1->Vx = Sph2->Vx;
-        Sph2->Vx = Bufer;
+void moveAtoms(Sphere* atoms, int number)
+{
+    for (int i = 0; i < number; i++)
+    {
+        for (int j = i + 1; j < number; j++)
+        {
+            atoms[i].collisionSpheres(&atoms[j]);
+        }
+    }
 
-        Bufer = Sph1->Vy;
-        Sph1->Vy = Sph2->Vy;
-        Sph2->Vy = Bufer;
-     }
-bool CheckCollisionBall(Sphere Sph1, Sphere Sph2){
-    if ((pow((Sph1.x - Sph2.x),2)) + (pow((Sph1.y - Sph2.y),2)) <= (Sph2.R + Sph1.R) * (Sph2.R + Sph1.R)){
-        return true;
+    for (int i = 0; i < number; i++)
+    {
+        atoms[i].collisionWithWalls();
     }
-    else{
-        return false;
-    }
-}
 
-bool LoseCondition(Sphere Sph1, Sphere Sph2, Sphere Sph3){
-    if(CheckCollisionBall(Sph1, Sph3) or CheckCollisionBall(Sph2, Sph3)){
-        return false;
+    for (int i = 0; i < number; i++)
+    {
+        atoms[i].movement();
     }
-    else{
-    return true;
-    }
-}
-bool ImmortalTimer(){
-    if (clock() <= 3000){
-        return true;
-    }
-    else
-        return false;
 }
 
 int main()
 {
-    Screen ab;
-    ab = {1500, 800};
-    txCreateWindow(ab.a, ab.b);
+    int number = 500;
+    Sphere* atoms = new Sphere[number];
+    int a = 1500;
+    int b = 800;
+
+    txCreateWindow(a, b);
     txSetFillColor (TX_BLACK);
 
-    Sphere Sph1;
-    Sph1 = {400, 500, 100, 0, 100, 250, 100, 7, 7};
-    Sphere Sph2;
-    Sph2 = {300, 200, 100, 0, 100, 250, 100, 5, 5};
-    Sphere Sph3;
 
+    for (int i = 0; i < number; i++)
+    {
+        atoms[i].x = 20 + rand()%(1481);
+        atoms[i].y = 20 + rand()%(781);
+        atoms[i].R = 5;
+        atoms[i].Vx = -10 + rand()%(10+10+1);
+        atoms[i].Vy = -10 + rand()%(10+10+1);
+    }
 
-    while (LoseCondition(Sph1, Sph2, Sph3) or ImmortalTimer()) {
+    while (true)
+    {
         txBegin();
         txClear();
 
-        if(ImmortalTimer()){
-            Sph3 = {txMouseX(), txMouseY(), 100, 0, 100, 250, 100, 0, 0};
-            DrowSph(Sph3);
-        }
-        else{
-            Sph3 = {txMouseX(), txMouseY(), 100, 250, 250, 0, 100, 0, 0};
-            DrowSph(Sph3);
-        }
+        drowAtoms(atoms, number);
 
-        if (CheckCollisionBall(Sph1, Sph2)){
-            CollisionResult (&Sph1, &Sph2);
-        }
-
-        MoveSph(&Sph1);
-        MoveSph(&Sph2);
-
-
-        DrowSph(Sph1);
-        DrowSph(Sph2);
-
-        CheckCollisionWall(&Sph1, ab);
-        CheckCollisionWall(&Sph2, ab);
+        moveAtoms(atoms, number);
 
         txEnd();
-        }
+    }
+
+    delete[] atoms;
     return 0;
 }
