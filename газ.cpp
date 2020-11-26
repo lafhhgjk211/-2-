@@ -60,20 +60,15 @@ class Sphere
                 return;
             }
 
-            float Vx1BeforeCollision = Vx;
-            float Vy1BeforeCollision = Vy;
-            float Vx2BeforeCollision = sphere->Vx;
-            float Vy2BeforeCollision = sphere->Vy;
-            float distBefore = sqrt((x - sphere->x) * (x - sphere->x) + (y - sphere->y) * (y - sphere->y));
-            float distAfter = R + sphere->R;
+            float Bufer = 0;
+            Bufer = Vx;
+            Vx = sphere->Vx;
+            sphere->Vx = Bufer;
 
-            Vx = Vx2BeforeCollision;
-            Vy = Vy2BeforeCollision;
-            sphere->Vx = Vx1BeforeCollision;
-            sphere->Vy = Vy1BeforeCollision;
+            Bufer = Vy;
+            Vy = sphere->Vy;
+            sphere->Vy = Bufer;
         }
-
-
 };
 
 void drowAtoms(Sphere* atoms, int number)
