@@ -81,29 +81,104 @@ public:
             length --;
         }
     }
+
+
+    void delete_head()
+    {
+        if (!head)
+        {
+            cout << "list is empty" << endl;
+        }
+        else
+        {
+            Node *bufer = head->next;
+            delete head;
+            head = bufer;
+        }
+        length --;
+    }
+
+    void insertByIndex(int index,int new_data)
+    {
+        if (index > length)
+        {
+         cout << "index > length" << endl;
+        }
+        else
+        {
+            Node *current = head;
+            int i  = 0;
+            while (i < (index-2) )
+            {
+                current = current->next;
+                i ++;
+            }
+            Node *new_node = new Node;
+            new_node->data = new_data;
+            new_node->next = current->next->next;
+            current->next  = new_node;
+        }
+        length ++;
+    }
+    void is_list_looped()
+    {
+        int flag = 0;
+        int i = 1;
+        Node *current1 = head;
+        Node *current2 = head->next;
+        while (i < length)
+        {
+            if(current1->data = current2->data)
+            {
+                flag = 1;
+                i += 2;
+            }
+            else
+            {
+                current1 = current1->next;
+                current2 = current2->next->next;
+                i += 2;
+            }
+        }
+        if (flag == 1)
+        {
+            cout << "list is looped" << endl;
+        }
+        else
+        {
+            cout << "list isn't looped" << endl;
+        }
+    }
+
+
+
+
+
+
 };
 int main()
 {
     List myList;
     myList.add_head(1);
-    myList.add_head(2);
-    myList.add_head(3);
-    myList.add_head(4);
-    myList.add_head(5);
+    myList.add_head(13);
+    myList.add_head(48);
+    myList.add_head(25);
+    myList.add_head(17);
     myList.add_head(6);
     myList.add_head(7);
-    myList.add_tail(7);
-    myList.add_tail(6);
+    myList.add_tail(9);
+    myList.add_tail(3);
     myList.add_tail(5);
     myList.add_tail(4);
     myList.add_tail(3);
     myList.add_tail(2);
-    myList.add_tail(1);
+    myList.add_tail(8);
+    myList.delete_tail();
+    myList.delete_head();
+    myList.insertByIndex(100, 100);
     myList.print_length();
     myList.print_list();
-    myList.delete_tail();
-    myList.print_list();
-
+    myList.is_list_looped();
 
 
 
